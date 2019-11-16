@@ -2,10 +2,12 @@
 <resources>
     <string name="picture">拍照</string>
     <string name="description_info">信息</string>
+    <string name="description_settings">设置</string>
     <string name="request_permission">该应用需要相机权限</string>
     <string name="camera_error">设备不支持 Camera2 API.</string>
     <string name="stop">停止</string>
     <string name="record">录像</string>
     <string name="permission_request">该应用需要相机和mic权限!!!</string>
     <string name="double_preview">双预览</string>
+    <string name="background_record">后台录像</string>
 </resources>

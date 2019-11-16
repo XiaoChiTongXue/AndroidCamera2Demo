@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Camera;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -47,11 +48,13 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.venus.camera2demo.R;
 import com.venus.camera2demo.view.AutoFitTextureView;
+import com.venus.camera2demo.view.CameraParamsSettingsDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +73,9 @@ import androidx.legacy.app.FragmentCompat;
 
 /**
  * 视频录制fragment
+ *
+ * @author york.zhou
+ * @date 2019-11-16
  */
 public class Camera2VideoFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
@@ -97,6 +103,7 @@ public class Camera2VideoFragment extends Fragment
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
 
+    private CameraParamsSettingsDialog mCameraParamsSettingsDialog;
     /**
      * An {@link AutoFitTextureView} for camera preview.
      */
@@ -285,7 +292,7 @@ public class Camera2VideoFragment extends Fragment
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
         mButtonVideo = (Button) view.findViewById(R.id.video);
         mButtonVideo.setOnClickListener(this);
-        view.findViewById(R.id.info).setOnClickListener(this);
+        view.findViewById(R.id.img_settings).setOnClickListener(this);
     }
 
     @Override
@@ -317,15 +324,36 @@ public class Camera2VideoFragment extends Fragment
                 }
                 break;
             }
-            case R.id.info: {
-                Activity activity = getActivity();
-                if (null != activity) {
-                    new AlertDialog.Builder(activity)
-                            .setMessage(R.string.intro_message)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                }
+            case R.id.img_settings: {
+                showSettingsDialog(true);
                 break;
+            }
+        }
+    }
+
+    /**
+     * show Settings Dialog
+     *
+     * @param showDialog
+     */
+    private void showSettingsDialog(boolean showDialog) {
+        if (showDialog) {
+            if (mCameraParamsSettingsDialog == null) {
+                mCameraParamsSettingsDialog = new CameraParamsSettingsDialog(getContext(), R.style.PopDialog);
+                mCameraParamsSettingsDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        mCameraParamsSettingsDialog = null;
+                    }
+                });
+
+                mCameraParamsSettingsDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+                mCameraParamsSettingsDialog.show();
+            }
+        } else {
+            if (mCameraParamsSettingsDialog != null) {
+                mCameraParamsSettingsDialog.dismiss();
+                mCameraParamsSettingsDialog = null;
             }
         }
     }
@@ -360,7 +388,8 @@ public class Camera2VideoFragment extends Fragment
         if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
             new ConfirmationDialog().show(getChildFragmentManager(), FRAGMENT_DIALOG);
         } else {
-            requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO}, REQUEST_VIDEO_PERMISSIONS);
+            Log.v(TAG,"---- lala!!!");
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.SYSTEM_ALERT_WINDOW}, REQUEST_VIDEO_PERMISSIONS);
         }
     }
 
@@ -393,7 +422,7 @@ public class Camera2VideoFragment extends Fragment
      */
     @SuppressWarnings("MissingPermission")
     private void openCamera(int width, int height) {
-        if (!hasPermissionsGranted(new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO})) {
+        if (!hasPermissionsGranted(new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO})) {
             requestVideoPermissions();
             return;
         }
@@ -670,81 +699,78 @@ public class Camera2VideoFragment extends Fragment
         startPreview();
     }
 
-    /**
-     * Compares two {@code Size}s based on their areas.
-     */
-    static class CompareSizesByArea implements Comparator<Size> {
-
-        @Override
-        public int compare(Size lhs, Size rhs) {
-            // We cast here to ensure the multiplications won't overflow
-            return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
-                    (long) rhs.getWidth() * rhs.getHeight());
-        }
-
+/**
+ * Compares two {@code Size}s based on their areas.
+ */
+static class CompareSizesByArea implements Comparator<Size> {
+    @Override
+    public int compare(Size lhs, Size rhs) {
+        // We cast here to ensure the multiplications won't overflow
+        return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
+                (long) rhs.getWidth() * rhs.getHeight());
     }
+}
 
+/**
+ * Shows OK/Cancel confirmation dialog about camera permission.
+ */
+public static class ConfirmationDialog extends DialogFragment {
 
-    /**
-     * Shows OK/Cancel confirmation dialog about camera permission.
-     */
-    public static class ConfirmationDialog extends DialogFragment {
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Fragment parent = getParentFragment();
-            return new AlertDialog.Builder(getActivity())
-                    .setMessage(R.string.request_permission)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            parent.requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO},
-                                    REQUEST_VIDEO_PERMISSIONS);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Activity activity = parent.getActivity();
-                                    if (activity != null) {
-                                        activity.finish();
-                                    }
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final Fragment parent = getParentFragment();
+        return new AlertDialog.Builder(getActivity())
+                .setMessage(R.string.request_permission)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        parent.requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
+                                REQUEST_VIDEO_PERMISSIONS);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Activity activity = parent.getActivity();
+                                if (activity != null) {
+                                    activity.finish();
                                 }
-                            })
-                    .create();
-        }
+                            }
+                        })
+                .create();
+    }
+}
+
+/**
+ * Shows an error message dialog.
+ */
+public static class ErrorDialog extends DialogFragment {
+
+    private static final String ARG_MESSAGE = "message";
+
+    public static Camera2BasicFragment.ErrorDialog newInstance(String message) {
+        Camera2BasicFragment.ErrorDialog dialog = new Camera2BasicFragment.ErrorDialog();
+        Bundle args = new Bundle();
+        args.putString(ARG_MESSAGE, message);
+        dialog.setArguments(args);
+        return dialog;
     }
 
-    /**
-     * Shows an error message dialog.
-     */
-    public static class ErrorDialog extends DialogFragment {
-
-        private static final String ARG_MESSAGE = "message";
-
-        public static Camera2BasicFragment.ErrorDialog newInstance(String message) {
-            Camera2BasicFragment.ErrorDialog dialog = new Camera2BasicFragment.ErrorDialog();
-            Bundle args = new Bundle();
-            args.putString(ARG_MESSAGE, message);
-//            dialog.setArguments(args);
-            return dialog;
-        }
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Activity activity = getActivity();
-            return new AlertDialog.Builder(activity)
-                    .setMessage(getArguments().getString(ARG_MESSAGE))
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            activity.finish();
-                        }
-                    })
-                    .create();
-        }
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final Activity activity = getActivity();
+        return new AlertDialog.Builder(activity)
+                .setMessage(getArguments().getString(ARG_MESSAGE))
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        activity.finish();
+                    }
+                })
+                .create();
     }
+}
 }
