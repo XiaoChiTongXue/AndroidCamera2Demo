@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.venus.camera2demo.view;
+package com.android.camera2demo.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.TextureView;
 
 /**
@@ -62,12 +63,17 @@ public class AutoFitTextureView extends TextureView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
+
+        Log.v("xixi", "---- onMeasure();width:"+width +";height:"+height +";mRatioWidth:"+mRatioWidth +";mRatioHeight:"+mRatioHeight);
+
         if (0 == mRatioWidth || 0 == mRatioHeight) {
             setMeasuredDimension(width, height);
         } else {
             if (width < height * mRatioWidth / mRatioHeight) {
+                Log.v("xixi","lalalal001");
                 setMeasuredDimension(width, width * mRatioHeight / mRatioWidth);
             } else {
+                Log.v("xixi","lalala002");
                 setMeasuredDimension(height * mRatioWidth / mRatioHeight, height);
             }
         }

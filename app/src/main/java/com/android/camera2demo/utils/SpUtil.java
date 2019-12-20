@@ -1,4 +1,4 @@
-package com.venus.camera2demo.utils;
+package com.android.camera2demo.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

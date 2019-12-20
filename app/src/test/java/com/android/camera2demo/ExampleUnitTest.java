@@ -1,4 +1,4 @@
-package com.venus.camera2demo;
+package com.android.camera2demo;
 
 import org.junit.Test;
 

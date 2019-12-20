@@ -1,4 +1,4 @@
-package com.venus.camera2demo.view;
+package com.android.camera2demo.view;
 
 import android.content.Context;
 import android.graphics.Canvas;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.venus.camera2demo.fragment;
+package com.android.camera2demo.fragment;
 
 import android.Manifest;
 import android.app.Activity;
@@ -54,8 +54,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.venus.camera2demo.R;
-import com.venus.camera2demo.view.AutoFitTextureView;
+import com.android.camera2demo.R;
+import com.android.camera2demo.view.AutoFitTextureView;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,4 +1,4 @@
-package com.venus.camera2demo.utils;
+package com.android.camera2demo.utils;
 
 public class LogUtil {
 	private static final boolean LOG = true;
