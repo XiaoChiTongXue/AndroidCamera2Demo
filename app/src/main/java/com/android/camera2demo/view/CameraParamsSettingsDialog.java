@@ -1,4 +1,4 @@
-package com.venus.camera2demo.view;
+package com.android.camera2demo.view;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.venus.camera2demo.R;
+import com.android.camera2demo.R;
 
 public class CameraParamsSettingsDialog extends Dialog implements View.OnClickListener{
 	private static String TAG = CameraParamsSettingsDialog.class.getSimpleName();
