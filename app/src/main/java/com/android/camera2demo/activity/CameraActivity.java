@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.venus.camera2demo.activity;
+package com.android.camera2demo.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -24,10 +24,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.venus.camera2demo.R;
-import com.venus.camera2demo.fragment.Camera2BasicFragment;
-import com.venus.camera2demo.fragment.Camera2DoubleTextViewFragment;
-import com.venus.camera2demo.fragment.Camera2VideoFragment;
+import com.android.camera2demo.R;
+import com.android.camera2demo.fragment.Camera2BasicFragment;
+import com.android.camera2demo.fragment.Camera2DoubleTextViewFragment;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -60,7 +59,7 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showFrameLayout(true);
-                switchFragment(Camera2VideoFragment.newInstance());
+                switchFragment(Camera2BasicFragment.newInstance());
             }
         });
 

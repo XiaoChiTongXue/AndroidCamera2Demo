@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.venus.camera2demo.fragment;
+package com.android.camera2demo.fragment;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Camera;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -52,9 +51,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.venus.camera2demo.R;
-import com.venus.camera2demo.view.AutoFitTextureView;
-import com.venus.camera2demo.view.CameraParamsSettingsDialog;
+import com.android.camera2demo.R;
+import com.android.camera2demo.application.MyApplication;
+import com.android.camera2demo.constants.SpKeyConstants;
+import com.android.camera2demo.utils.SpUtil;
+import com.android.camera2demo.view.AutoFitTextureView;
+import com.android.camera2demo.view.CameraParamsSettingsDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -289,8 +291,8 @@ public class Camera2VideoFragment extends Fragment
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
-        mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
-        mButtonVideo = (Button) view.findViewById(R.id.video);
+        mTextureView = view.findViewById(R.id.texture);
+        mButtonVideo = view.findViewById(R.id.video);
         mButtonVideo.setOnClickListener(this);
         view.findViewById(R.id.img_settings).setOnClickListener(this);
     }
@@ -329,6 +331,11 @@ public class Camera2VideoFragment extends Fragment
                 break;
             }
         }
+    }
+
+    private boolean isSupportBackGroundRecord(){
+//        Settings.System.
+        return SpUtil.getBoolean(MyApplication.getContext(),SpKeyConstants.SP_KEY_BACKGROUND_RECORD,SpKeyConstants.BACKGROUND_RECORD_DEFAULT_VALUE);
     }
 
     /**
@@ -426,10 +433,12 @@ public class Camera2VideoFragment extends Fragment
             requestVideoPermissions();
             return;
         }
+
         final Activity activity = getActivity();
         if (null == activity || activity.isFinishing()) {
             return;
         }
+
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             Log.d(TAG, "tryAcquire");
@@ -451,6 +460,9 @@ public class Camera2VideoFragment extends Fragment
                     width, height, mVideoSize);
 
             int orientation = getResources().getConfiguration().orientation;
+            Log.v(TAG,"---- xixihaha,orientation:"+orientation +";mSensorOrientation:"+mSensorOrientation +";DEFAULT_ORIENTATIONS.get(rotation):"+DEFAULT_ORIENTATIONS.get(0)
+            +";width:"+width +";height:"+height +";video.width:"+mVideoSize.getWidth() +";video.height:"+mVideoSize.getHeight());
+
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 mTextureView.setAspectRatio(mPreviewSize.getWidth(), mPreviewSize.getHeight());
             } else {
@@ -539,8 +551,8 @@ public class Camera2VideoFragment extends Fragment
         }
         try {
             setUpCaptureRequestBuilder(mPreviewBuilder);
-            HandlerThread thread = new HandlerThread("CameraPreview");
-            thread.start();
+//            HandlerThread thread = new HandlerThread("CameraPreview");
+//            thread.start();
             mPreviewSession.setRepeatingRequest(mPreviewBuilder.build(), null, mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -565,6 +577,8 @@ public class Camera2VideoFragment extends Fragment
             return;
         }
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+
+        Log.v(TAG,"---- haha,rotation:"+rotation);
         Matrix matrix = new Matrix();
         RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
         RectF bufferRect = new RectF(0, 0, mPreviewSize.getHeight(), mPreviewSize.getWidth());
@@ -600,6 +614,8 @@ public class Camera2VideoFragment extends Fragment
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+
+        Log.v(TAG,"lala:"+rotation +";DEFAULT_ORIENTATIONS.get(rotation)："+DEFAULT_ORIENTATIONS.get(rotation));
         switch (mSensorOrientation) {
             case SENSOR_ORIENTATION_DEFAULT_DEGREES:
                 mMediaRecorder.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation));
@@ -747,7 +763,6 @@ public static class ConfirmationDialog extends DialogFragment {
  * Shows an error message dialog.
  */
 public static class ErrorDialog extends DialogFragment {
-
     private static final String ARG_MESSAGE = "message";
 
     public static Camera2BasicFragment.ErrorDialog newInstance(String message) {

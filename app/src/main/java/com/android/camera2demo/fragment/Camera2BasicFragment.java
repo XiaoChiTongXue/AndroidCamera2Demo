@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.venus.camera2demo.fragment;
+package com.android.camera2demo.fragment;
 
 import android.Manifest;
 import android.app.Activity;
@@ -55,8 +55,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.venus.camera2demo.R;
-import com.venus.camera2demo.view.AutoFitTextureView;
+import com.android.camera2demo.R;
+import com.android.camera2demo.view.AutoFitTextureView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -257,7 +257,7 @@ public class Camera2BasicFragment extends Fragment
             Log.v(TAG, "--- onImageAvailable();reader: " + reader);
             Image image = reader.acquireLatestImage();
             image.close();
-            //  mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
         }
     };
 
@@ -543,11 +543,11 @@ public class Camera2BasicFragment extends Fragment
 
                 // For still image captures, we use the largest available size.
                 Size largest = Collections.max(
-                        Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
+                        Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
                         new CompareSizesByArea());
 
                 mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
-                        ImageFormat.YUV_420_888, /*maxImages*/2);
+                        ImageFormat.JPEG, /*maxImages*/2);
                 mImageReader.setOnImageAvailableListener(
                         mOnImageAvailableListener, mBackgroundHandler);
 
@@ -893,7 +893,7 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-//                    Log.v(TAG, "---- onCaptureCompleted();");
+                    Log.v(TAG, "---- onCaptureCompleted();");
 
                     showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
@@ -1082,6 +1082,8 @@ public class Camera2BasicFragment extends Fragment
                     }
                 }
             }
+
+            Log.v(TAG,"---- save jpeg file success!!!"+mFile.getAbsolutePath());
         }
 
     }
